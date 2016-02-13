@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CS 109 Annotated Lectures</title>
+</head>
+<body>
+	hello world!
+	<video id="lol" controls>
+		<source src="videos/lecture.mp4" type="video/mp4" />
+		<!-- <source src="videos/lecture.ogg" type="video/ogg" /> -->
+		Your browser does not support the video tag.
+	</video>
+
+	
+	<script type="text/javascript">
+		document.getElementById("lol").addEventListener("loadedmetadata", function() {
+			this.currentTime = 1000;
+		}, true);
+	</script> 
+</body>
+</html>
