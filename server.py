@@ -17,15 +17,25 @@ def allowed_file(filename):
 #2. access json with dot notation on front end for different slides
 #3. call guy's function ocr and get that json and return in response
 
+temp = ""
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         print request.files
         file = request.files['file']
-        print file
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            # directory = ""
+            # if temp is "":
+            #     temp = '../uploads/' + filename
+            # else:
+            #     directory = '../uploads/' + filename
+
+            # print temp, directory
+            # return findFrames(temp, directory)
             return jsonify({'foo': 'bar'})
             # return redirect(url_for('uploaded_file', filename=filename))
             

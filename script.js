@@ -70,12 +70,13 @@ $("#form").submit(function(event) {
 	event.preventDefault();
 	var fd = new FormData();
 	fd.append('file', $('input[type=file]')[0].files[0]);
+	// fd.append('file2', $('input[type=file]')[0].files[0]);
 	$.ajax({
 	  url: 'http://localhost:5000/', 
 	  type: 'POST',
 	  data: fd, // The form with the file inputs.
 	  processData: false,
-	  contentType:false                          // Using FormData, no need to process data.
+	  contentType: false                          // Using FormData, no need to process data.
 	}).done(function(data) {
 	  console.log(data);
 	}).fail(function(){
