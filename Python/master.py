@@ -409,7 +409,24 @@ def generateJSON(times):
 		json.dump(frames, data, indent=4, sort_keys=True)
 
 
-def findFrames(videoLocation, slideLocation):
+def passSlides(slideLocation):
+	with open("slideLocation.txt",'w') as f:
+		f.write(slideLocation)
+
+
+
+def findFrames(location):
+	f = open('slideLocation.txt', 'r')
+	slideLocation = f.read()
+	f.close()
+	if location.split('.')[1] == 'pdf':
+		with open("slideLocation.txt",'w') as f:
+			f.write(slideLocation)
+		return
+	f = open('slideLocation.txt', 'r')
+	slideLocation = f.read()
+	f.close()
+	videoLocation = location
 
 
 	get_keyframes(videoLocation)
