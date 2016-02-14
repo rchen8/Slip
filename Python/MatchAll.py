@@ -4,7 +4,8 @@ import os
 import os.path
 
 
-THRESHOLD = 0.5
+THRESHOLD = 0.6
+SCALE = 0.5
 
 
 DROP_OFF = 0.25
@@ -12,8 +13,8 @@ MAX_FRAMES = 10
 
 
 
-slideFolder = "LectureSlides2"
-frameFolder = "keyframes2"
+slideFolder = "LectureSlides"
+frameFolder = "keyframes"
 
 allSlides = os.listdir(slideFolder)
 allSlides = filter(lambda x: x[0] != '.', allSlides)
@@ -22,11 +23,15 @@ allFrames = os.listdir(frameFolder)
 allFrames = filter(lambda x: x[0] != '.', allFrames)
 allFrames.sort()
 
+numFrames = len(allFrames)
+numSlides = len(allSlides)
+
 print("Preprocess Step")
 sift = cv2.SIFT()
 frameFeatures = []
 for frameFile in allFrames:
 	img = cv2.imread(os.path.join(frameFolder, frameFile))
+	img = cv2.resize(img, (0,0), fx = SCALE, fy = SCALE)
 	frameFeatures.append(sift.detectAndCompute(img, None)[1])
 	print(len(frameFeatures))
 print("Frames done")
@@ -34,9 +39,12 @@ print("Frames done")
 slideFeatures = []
 for slideFile in allSlides:
 	img = cv2.imread(os.path.join(slideFolder, slideFile))
+	img = cv2.resize(img, (0,0), fx = SCALE/2, fy = SCALE/2)
 	slideFeatures.append(sift.detectAndCompute(img, None)[1])
 	print(len(slideFeatures))
 print("Slides done")
+
+
 
 
 def bestFrame(matchQuality):
@@ -80,8 +88,88 @@ for slide in slideFeatures:
 	print(len(frameNumbers))
 
 
-for line in grid:
-	print line
+import math
+#print("sqrt")
+def normalize(l):
+	x = max(l)
+	if x == 0:
+		return
+	for i in range(len(l)):
+		l[i] = (0.0 + l[i])/x
+
+print "no normalize"
+def allBestFrames(grid):
+	for i in range(len(grid)):
+		normalize(grid[i])
+
+	pointers = []
+	score = []
+	for i in range(len(grid)):
+		pointers.append([])
+		score.append([0]*len(grid[i]))
+		for j in range(len(grid[i])):
+			pointers[-1].append(j)
+	#print(pointers)
+
+	currentRow = 0
+	score[0][0] = grid[0][0]
+	for i in range(1, numFrames):
+		if score[0][i-1] >= grid[0][i]:
+			score[0][i] = score[0][i-1]
+			pointers[0][i] = pointers[0][i-1]
+		else:
+			score[0][i] = grid[0][1]
+
+	for row in range(1, numSlides):
+		starting = row
+		score[row][starting] = score[row-1][starting-1] = grid[row][starting]
+		for col in range(row+1, numFrames):
+			newScore = score[row-1][col-1] + grid[row][col]
+			if score[row][col-1] >= newScore:
+				score[row][col] = score[row][col-1]
+				pointers[row][col] = pointers[row][col-1]
+			else:
+				score[row][col] = newScore
+
+	answers = []
+	bestFrame = 0
+	bestScore = 0
+	for i in range(numFrames):
+		if score[numSlides-1][i] > bestScore:
+			bestFrame = i
+			bestScore = score[numSlides-1][i]
+	currentFrame = bestFrame
+	answers.append(currentFrame)
+	currentRow = numSlides - 1
+	while currentRow != 0:
+		currentRow -= 1
+		currentFrame = pointers[currentRow][currentFrame-1]
+		answers.append(currentFrame+1)
+
+	return list(reversed(answers))
+'''
+import random
+grid = []
+for i in range(4):
+	grid.append([])
+	for j in range(11):
+		grid[-1].append(random.randint(1,9))
+	grid[-1].append(9)
+
+for line in grid: print line
+numFrames = len(grid[0])
+numSlides = len(grid)
+print(allBestFrames(grid))'''
+
+
+
+
+
+for i,line in enumerate(allBestFrames(grid)):
+	print(i+1, line)
+
+'''for line in grid:
+	print " ".join(map(lambda x: str(round(x, 2)), line))'''
 	#print(len(frameNumbers), frameNumbers[-1])
 '''for i,f in enumerate(frameNumbers):
 	f.sort(key = lambda x: -x[0])
