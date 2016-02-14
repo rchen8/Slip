@@ -2,6 +2,11 @@ import os
 from flask import Flask, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug import secure_filename
 
+import sys
+sys.path.insert(0, 'Python/')
+
+from master import findFrames
+
 app = Flask(__name__)
 
 UPLOAD_FOLDER = './uploads'
@@ -32,11 +37,12 @@ def upload_file():
             # if temp is "":
             #     temp = '../uploads/' + filename
             # else:
-            #     directory = '../uploads/' + filename
+            directory = '../uploads/' + filename
 
+            print directory
             # print temp, directory
-            # return findFrames(temp, directory)
-            return jsonify({'foo': 'bar'})
+            return findFrames(directory)
+            # return jsonify({'foo': 'bar'})
             # return redirect(url_for('uploaded_file', filename=filename))
             
             # return data
