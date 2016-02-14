@@ -20,8 +20,8 @@ document.getElementById("button").addEventListener("click", function(event) {
 });
 
 function changeSlide() {
-	var slide = tag("img", {src: "slides/Small01-" + (currentSlide < 10 ? "0" + currentSlide : currentSlide) + ".png", height: 600}, "");
-	var div = document.getElementById("slide");
+	var slide = tag("img", {src: "slides/Small01-" + (currentSlide < 10 ? "0" + currentSlide : currentSlide) + ".png", height: 540}, "");
+	var div = document.getElementById("frame");
 	div.innerHTML = "";
 	div.appendChild(slide);
 
@@ -30,8 +30,8 @@ function changeSlide() {
 }
 
 function changeVideo(time) {
-	var div = document.getElementById("slide");
-	var video = tag("video", {controls:"", height: 600}, [
+	var div = document.getElementById("frame");
+	var video = tag("video", {controls:"", height: 540}, [
 		tag("source", {src: "videos/lecture.mp4", type: "video/mp4"}, ""),
 		"Your browser does not support the video tag."
 	]);

@@ -1,5 +1,11 @@
 body {
-	background-color: black;
+	background-color: white;
+}
+
+#frame {
+	width:960px;
+	height:540px;
+	background: black;
 }
 
 .button {
