@@ -61,18 +61,25 @@ function changeVideo(time) {
 	document.getElementById("slide_button").setAttribute("src", "images/slide_button.png");
 }
 
-// document.getElementById("test").addEventListener("click", function(event) {
-// 	$.ajax( {
-// 		url: "test.py",
-// 		success: function(response) {
-// 			console.log("python works");
-// 		}
-// 	});
+// $.ajax({ url: 'http://localhost:5000/', success: function(response) {
+//  		console.log(response); 
+// 	}
 // });
 
-function test() {
-	var file = document.getElementById("file").files;
-	for (var i = 0; i < file.length; i++) {
-		console.log(file[i]);
-	}
-}
+$("#form").submit(function(event) {
+	event.preventDefault();
+	var fd = new FormData();
+	fd.append('file', $('input[type=file]')[0].files[0]);
+	$.ajax({
+	  url: 'http://localhost:5000/', 
+	  type: 'POST',
+	  data: fd, // The form with the file inputs.
+	  processData: false,
+	  contentType:false                          // Using FormData, no need to process data.
+	}).done(function(data) {
+	  console.log(data);
+	}).fail(function(){
+	  console.log("An error occurred, the files couldn't be sent!");
+	});
+});
+
