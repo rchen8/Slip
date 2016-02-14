@@ -2,6 +2,15 @@ import numpy as np
 import cv2
 import os
 import os.path
+import imp
+try:
+    import Image
+except ImportError:
+    from PIL import Image
+from PIL import ImageEnhance
+import pytesseract
+import sys
+import math
 
 
 THRESHOLD = 0.6
@@ -15,6 +24,65 @@ MAX_FRAMES = 10
 
 slideFolder = "LectureSlides"
 frameFolder = "keyframes"
+
+def fileNameToStr(filename):
+    try:
+        image = Image.open(filename)
+        image.thumbnail((512,512))
+        #contrast = ImageEnhance.Contrast(image)
+        #image = contrast.enhance(2)
+
+        if len(image.split()) == 4:
+            # In case we have 4 channels, lets discard the Alpha.
+            # Kind of a hack, should fix in the future some time.
+            r, g, b, a = image.split()
+            image = Image.merge("RGB", (r, g, b))
+    except IOError:
+        sys.stderr.write('ERROR: Could not open file "%s"\n' % filename)
+        exit(1)
+    return pytesseract.image_to_string(image)
+
+def resize(img, target):
+	smaller = min(img.shape[:2])
+	factor = 1.0
+	while smaller > target:
+		smaller /= 2
+		factor /= 2
+	return cv2.resize(img, (0,0), fx = factor, fy = factor)
+
+
+#http://rosettacode.org/wiki/Longest_common_subsequence#Python
+def lcs(a, b):
+    lengths = [[0 for j in range(len(b)+1)] for i in range(len(a)+1)]
+    # row 0 and column 0 are initialized to 0 already
+    for i, x in enumerate(a):
+        for j, y in enumerate(b):
+            if x == y:
+                lengths[i+1][j+1] = lengths[i][j] + 1
+            else:
+                lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
+    # read the substring out from the matrix
+    result = 0
+    x, y = len(a), len(b)
+    while x != 0 and y != 0:
+        if lengths[x][y] == lengths[x-1][y]:
+            x -= 1
+        elif lengths[x][y] == lengths[x][y-1]:
+            y -= 1
+        else:
+            assert a[x-1] == b[y-1]
+            result = 1 + result
+            x -= 1
+            y -= 1
+    return result
+
+def textCompare(slideText, frameText):
+	lcsLength = lcs(slideText, frameText)
+	if len(frameText) != 0:
+		return lcsLength*math.sqrt((len(slideText)+0.0)/len(frameText))
+	else:
+		return 0
+
 
 
 def findFileNumber(fileName):
@@ -43,26 +111,34 @@ numSlides = len(allSlides)
 print("Preprocess Step")
 #sift = cv2.SIFT()
 frameFeatures = []
+frameText = []
 for frameFile in allFrames:
 	sift = cv2.SIFT()
 	img = cv2.imread(os.path.join(frameFolder, frameFile))
-	img = cv2.resize(img, (0,0), fx = SCALE, fy = SCALE)
+	#print img.shape
+	img = resize(img, 200)
+	#print img.shape
 	frameFeatures.append(sift.detectAndCompute(img, None)[1])
 	print(len(frameFeatures))
+	frameText.append(fileNameToStr(os.path.join(frameFolder, frameFile)))
 print("Frames done")
 
 slideFeatures = []
+slideText = []
 for slideFile in allSlides:
 	sift = cv2.SIFT()
 	img = cv2.imread(os.path.join(slideFolder, slideFile))
-	img = cv2.resize(img, (0,0), fx = SCALE, fy = SCALE)
+	#print img.shape
+	img = resize(img, 500)
+	#print img.shape
 	slideFeatures.append(sift.detectAndCompute(img, None)[1])
 	print(len(slideFeatures))
+	slideText.append(fileNameToStr(os.path.join(slideFolder, slideFile)))
 print("Slides done")
 
 
 
-
+'''
 def bestFrame(matchQuality):
 	matchQuality.sort(key = lambda x: -x[0])
 	#print(matchQuality)
@@ -103,22 +179,27 @@ for slide in slideFeatures:
 
 	frameNumbers.append(matchQuality)
 	print(len(frameNumbers))
+'''
 
+gridText = []
+for slide in slideText:
+	gridText.append([])
+	for frame in frameText:
+		gridText[-1].append(textCompare(slide,frame))
 
-import math
 #print("sqrt")
-#def normalize(l):
-#	x = max(l)
-#	if x == 0:
-#		return
-#	for i in range(len(l)):
-#		l[i] = (0.0 + l[i])/x
+def normalize(l):
+	x = max(l)
+	if x == 0:
+		return
+	for i in range(len(l)):
+		l[i] = (0.0 + l[i])/x
 
 #print "no normalize"
 
 def allBestFrames(grid):
-	#for i in range(len(grid)):
-	#	normalize(grid[i])
+	for i in range(len(grid)):
+		normalize(grid[i])
 	numFrames = len(grid[0])
 	numSlides = len(grid)
 	pointers = []
@@ -162,6 +243,76 @@ def allBestFrames(grid):
 
 	x = list(reversed(answers))
 	return x
+
+def addText(grid, slideMiddles, slideText, frameText):
+	for i, line in enumerate(grid):
+		if i < 2:
+			lower = 0
+		else:
+			lower = slideMiddles[i-2]
+		if i >= len(slideMiddles - 2):
+			higher = len(slideMiddles[0] - 1)
+		else:
+			higher = slideMiddles[i+2]
+		textMatches = []
+		for frame in range(lower, higher+1):
+			textMatches.append(textCompare(slideText[i], frameText[frame]))
+		normalize(textMatches)
+		for frame in range(lower, higher+1):
+			grid[i] += textMatches[frame-lower]
+			grid[i] /= 2
+
+
+
+firstList = allBestFrames(grid)
+
+for i,line in enumerate(firstList):
+	print(i+1, line)
+
+addText(grid, firstList, slideText, frameText)
+finalList = allBestFrames(grid)
+for i,line in enumerate(finalList):
+	print(i+1, line)
+borders = matchMiddle(grid, finalList)
+for i,line in enumerate(borders):
+	print(i+1, line)
+
+
+
+def matchMiddle(grid, slideMiddles):
+	thresh = 0.2
+	firstSlideAmount = grid[0]*thresh
+	start = slideMiddles[0]
+	while start > 0 and grid[0][start-1] >= firstSlideAmount:
+		start -= 1
+
+	endSlideAmount = grid[-1]*thresh
+	end = slideMiddles[-1]
+	while end < len(grid[0]) - 1 and  grid[-1][end+1] >= endSlideAmount:
+		end += 1
+
+	dividers = []
+	for i in range(len(grid) - 1):
+		bestDiv = None
+		bestMetric = -1
+		for posDiv in range(slideMiddles[i], slideMiddles[i+1]):
+			metric = 0
+			for slide in range(slideMiddles[i], posDiv+1):
+				metric += grid[i][slide]
+			for slide in range(posDiv+1, slideMiddles[i+1]+1):
+				metric += grid[i+1][slide]
+			if metric > bestMetric:
+				bestMetric = metric
+				bestDiv = posDiv
+		dividers.append(bestDiv)
+
+	borders = []
+	borders.append([start, dividers[0]])
+	for i in range(len(dividers) - 1):
+		borders.append([dividers[i] + 1, dividers[i+1]])
+	borders.append([dividers[-1]+1, end])
+	return borders
+
 	'''s = 0
 	for i in range(len(x)):
 		s += grid[i][x[i]]
@@ -232,9 +383,6 @@ print(allBestFrames(grid))'''
 
 
 
-
-for i,line in enumerate(allBestFrames(grid)):
-	print(i+1, line)
 
 '''for line in grid:
 	print " ".join(map(lambda x: str(round(x, 2)), line))'''
