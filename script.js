@@ -69,3 +69,10 @@ function changeVideo(time) {
 // 		}
 // 	});
 // });
+
+function test() {
+	var file = document.getElementById("file").files;
+	for (var i = 0; i < file.length; i++) {
+		console.log(file[i]);
+	}
+}
