@@ -1,6 +1,20 @@
 var NUM_SLIDES = 80;
 var currentSlide = 1;
 
+document.addEventListener("keyup", function(event) {
+	if (event.keyCode === 39) {
+		if (currentSlide < NUM_SLIDES) {
+			currentSlide++;
+			changeSlide();
+		}
+	} else if (event.keyCode === 37) {
+		if (currentSlide > 1) {
+			currentSlide--;
+			changeSlide();
+		}
+	}
+});
+
 document.getElementById("button").addEventListener("click", function(event) {
 	if (event.target.id === "back_button") {
 		if (currentSlide > 1) {
@@ -46,3 +60,12 @@ function changeVideo(time) {
 	document.getElementById("video_button").setAttribute("id", "slide_button");
 	document.getElementById("slide_button").setAttribute("src", "images/slide_button.png");
 }
+
+// document.getElementById("test").addEventListener("click", function(event) {
+// 	$.ajax( {
+// 		url: "test.py",
+// 		success: function(response) {
+// 			console.log("python works");
+// 		}
+// 	});
+// });
