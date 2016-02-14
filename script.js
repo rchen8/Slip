@@ -1,7 +1,7 @@
 var NUM_SLIDES = 80;
 var currentSlide = 1;
 
-document.getElementById("buttons").addEventListener("click", function(event) {
+document.getElementById("button").addEventListener("click", function(event) {
 	if (event.target.id === "back_button") {
 		if (currentSlide > 1) {
 			currentSlide--;
@@ -12,29 +12,37 @@ document.getElementById("buttons").addEventListener("click", function(event) {
 			currentSlide++;
 			changeSlide();
 		}
-	} else if (event.target.id === "show_video") {
-		changeVideo();
+	} else if (event.target.id === "video_button") {
+		changeVideo(1000);
+	} else if (event.target.id === "slide_button") {
+		changeSlide();
 	}
 });
 
 function changeSlide() {
 	var slide = tag("img", {src: "slides/Small01-" + (currentSlide < 10 ? "0" + currentSlide : currentSlide) + ".png", height: 600}, "");
-	var div = document.getElementById("slides");
+	var div = document.getElementById("slide");
 	div.innerHTML = "";
 	div.appendChild(slide);
+
+	document.getElementById("slide_button").setAttribute("id", "video_button");
+	document.getElementById("video_button").setAttribute("src", "images/video_button.png");
 }
 
-function changeVideo() {
-	var div = document.getElementById("slides");
+function changeVideo(time) {
+	var div = document.getElementById("slide");
 	var video = tag("video", {controls:"", height: 600}, [
 		tag("source", {src: "videos/lecture.mp4", type: "video/mp4"}, ""),
 		"Your browser does not support the video tag."
 	]);
 
 	video.addEventListener("loadedmetadata", function(event) {
-		this.currentTime = 1000;
+		this.currentTime = time;
 	})
 
 	div.innerHTML = "";
 	div.appendChild(video);
+
+	document.getElementById("video_button").setAttribute("id", "slide_button");
+	document.getElementById("slide_button").setAttribute("src", "images/slide_button.png");
 }
