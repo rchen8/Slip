@@ -41,7 +41,9 @@ def upload_file():
 
             print directory
             # print temp, directory
+            print 'test1'
             return findFrames(directory)
+            print 'test2'
             # return jsonify({'foo': 'bar'})
             # return redirect(url_for('uploaded_file', filename=filename))
             

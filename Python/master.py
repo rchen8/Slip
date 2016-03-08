@@ -348,9 +348,12 @@ def findFileNumber(fileName):
 timestamps = []
 frameFolder = None
 def get_keyframes(videoLocation):
+	os.chdir("Uploads")
 	for root, dirs, files in os.walk(os.path.join(os.getcwd())):
 		for file in files:
-			if file == videoLocation: #file.endswith('.mp4'):
+			print file
+			print videoLocation
+			if os.path.join("Uploads",file) == videoLocation: #file.endswith('.mp4'):
 				filename = os.path.splitext(file)[0]
 				newdir = filename + '-frames'
 				global frameFolder
@@ -416,22 +419,31 @@ def passSlides(slideLocation):
 
 
 def findFrames(location):
-	f = open('slideLocation.txt', 'r')
-	slideLocation = f.read()
-	f.close()
-	if location.split('.')[1] == 'pdf':
+	print '1'
+	#f = open('slideLocation.txt', 'r')
+	#slideLocation = f.read()
+	#f.close()
+	print '2'
+	print location.split('.')[1]
+	print location
+	if location.endswith('pdf'):
+		print('4')
 		with open("slideLocation.txt",'w') as f:
-			f.write(slideLocation)
-		return
+			f.write(location)
+		print('5')
+		print 'returning'
+		return ''
+	print '3'
 	f = open('slideLocation.txt', 'r')
 	slideLocation = f.read()
 	f.close()
 	videoLocation = location
-
+	print '4'
 
 	get_keyframes(videoLocation)
 	print len(timestamps)
 	
+	os.chdir("..")
 	os.chdir("..")
 	#extractSlides(slideLocation)
 	os.makedirs(slideFolder)
@@ -453,7 +465,7 @@ def findFrames(location):
 		return x
 #	return json.dumps({"timeStamps" : timeStamps, "slideLocations" : slideLocations})
 
-print findFrames("160106-cs103-540.mp4", "cs103-lec1.pdf")
+#print findFrames("160106-cs103-540.mp4", "cs103-lec1.pdf")
 
 
 
