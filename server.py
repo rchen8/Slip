@@ -2,7 +2,7 @@ import os
 from flask import *
 from werkzeug import secure_filename
 
-UPLOAD_FOLDER = '/backend/uploads'
+UPLOAD_FOLDER = 'lib/uploads'
 ALLOWED_EXTENSIONS = set(['pdf']) # TODO
 
 app = Flask(__name__, static_url_path='')
@@ -17,6 +17,7 @@ def upload_file():
 		file = request.files['file']
 		if file and allowed_file(file.filename):
 			filename = secure_filename(file.filename)
+			print filename
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			return redirect(url_for('uploaded_file', filename=filename))
 	elif request.method == 'GET':
