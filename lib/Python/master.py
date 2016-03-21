@@ -30,6 +30,12 @@ MAX_FRAMES = 10
 #slideFolder = "LectureSlides"
 #frameFolder = "keyframes"
 
+HOMENAME = "SLIP"
+FRAME_FOLDER = "lib/downloads/frames"
+VIDEO_LOCATION = "lib/downloads/video.mp4"
+SLIDE_LOCATION = "lib/downloads/slide.pdf"
+SLIDE_FOLDER = "lib/downloads/slides"
+
 def fileNameToStr(filename):
 	    try:
 	        image = Image.open(filename)
@@ -333,7 +339,7 @@ def findStarts(slideFolder, frameFolder):
 	return answer
 
 
-slideFolder = 'Slides'
+slideFolder = 'SlideFolder'
 
 def findFileNumber(fileName):
 	first,second = fileName.split('.')
@@ -345,55 +351,61 @@ def findFileNumber(fileName):
 			s = first[i] + s
 	return int(s)
 
-timestamps = []
-frameFolder = None
+#timestamps = []
+frameFolder = FRAME_FOLDER
 def get_keyframes(videoLocation):
-	os.chdir("Uploads")
-	for root, dirs, files in os.walk(os.path.join(os.getcwd())):
-		for file in files:
-			print file
-			print videoLocation
-			if os.path.join("Uploads",file) == videoLocation: #file.endswith('.mp4'):
-				filename = os.path.splitext(file)[0]
-				newdir = filename + '-frames'
-				global frameFolder
-				frameFolder = newdir
-				print newdir
-				if (os.path.exists(newdir) == False):
-					os.mkdir(newdir)
-				os.chdir(newdir)
-				with open('output-' + filename + '.txt', 'w') as out:
-					cmd = "ffmpeg -i " + "../" + file + " -vf select='eq(pict_type\,PICT_TYPE_I)' -vsync passthrough -s 320x180 -f image2 %03d.png -loglevel debug 2>&1 | grep select:1"
-					p = subprocess.Popen(cmd, shell=True, stdout=out)
-					p.wait()
-					out.flush()
-				file = open('output-' + filename + '.txt', 'r')	
-				rows = file.readlines()
-				with open('timestamps-' + filename + '.txt', 'w') as f:
-					for line in rows:
-						time = line.split(' t:')[1].split(' ')[0]
-						#print time
-						timestamps.append(float(time))
-						if (timestamps[-1] > 1): timestamps[-1] -= 1
-'''
-						info = line.split()
-						if (info[5][:5] == "time:"):
-							hrs, mins, secs = info[5][5:].split(":")
-							hr = hrs[-2:] * 60 * 60 * 1000
-							mi = mins * 60 * 1000
-							sec = secs * 1000
-							t = hr + mi + sec
-							print t
-							timeStamps.append(float(t))
-							f.write(t + '\n')
-						if (info[5][:2] == "t:"):
-							print info[5][2:]
-							timestamps.append(float(info[5][2:]))
-							f.write(info[5][2:] + '\n')'''
-						#if (info[5][:2] == "t:"):
-						#	print info[5][2:]
-						#	timestamps.append(float(info[5][2:]))
-							#f.write(info[5][2:] + '\n')
+	timestamps = []
+	#os.chdir("Uploads")
+	#for root, dirs, files in os.walk(os.path.join(os.getcwd())):
+		#for file in files:
+	#		print file
+	#		print videoLocation
+			#if os.path.join("Uploads",file) == videoLocation: #file.endswith('.mp4'):
+	moveToHome()
+	#file = videoLocation
+	filename = videoLocation.split('/')[-1]
+	newdir = FRAME_FOLDER#+ '-frames'
+	#global frameFolder
+	#frameFolder = newdir
+	print newdir
+	if (os.path.exists(FRAME_FOLDER) == False):
+		os.mkdir(FRAME_FOLDER)
+	os.chdir(FRAME_FOLDER)
+	with open('output-' + filename + '.txt', 'w') as out:
+		cmd = "ffmpeg -i " + os.path.join(HOME,videoLocation )+ " -vf select='eq(pict_type\,PICT_TYPE_I)' -vsync passthrough -s 320x180 -f image2 %03d.png -loglevel debug 2>&1 | grep select:1"
+		print os.getcwd(), cmd
+		p = subprocess.Popen(cmd, shell=True, stdout=out)
+		p.wait()
+		out.flush()
+	file = open('output-' + filename + '.txt', 'r')	
+	#rows = file.readlines()
+	with open('timestamps-' + filename + '.txt', 'w') as f:
+		for line in file:
+			time = line.split(' t:')[1].split(' ')[0]
+			#print time
+			timestamps.append(float(time))
+			if (timestamps[-1] > 1): timestamps[-1] -= 1
+			'''
+			info = line.split()
+			if (info[5][:5] == "time:"):
+				hrs, mins, secs = info[5][5:].split(":")
+				hr = hrs[-2:] * 60 * 60 * 1000
+				mi = mins * 60 * 1000
+				sec = secs * 1000
+				t = hr + mi + sec
+				print t
+				timeStamps.append(float(t))
+				f.write(t + '\n')
+			if (info[5][:2] == "t:"):
+				print info[5][2:]
+				timestamps.append(float(info[5][2:]))
+				f.write(info[5][2:] + '\n')'''
+			#if (info[5][:2] == "t:"):
+			#	print info[5][2:]
+			#	timestamps.append(float(info[5][2:]))
+				#f.write(info[5][2:] + '\n')
+	print timestamps
+	return timestamps
 
 def generateJSON(times):
 	timestamp_counter = 0 # dummy variable
@@ -404,7 +416,7 @@ def generateJSON(times):
 		if ext == '.jpg':
 			slide_obj = {}
 			frames.append(slide_obj)
-			frames[i]['url'] = os.path.join(slideFolder,file)
+			frames[i]['image'] = os.path.join(file)
 			frames[i]['timestamp'] = times[i]
 			timestamp_counter += 1
 			i += 1
@@ -417,9 +429,21 @@ def passSlides(slideLocation):
 		f.write(slideLocation)
 
 
+'''
+Changes the working directory to the home of slip
+'''
+HOMENAME = "Slip"
+def moveToHome():
+	while os.path.split(os.getcwd())[-1] != HOMENAME:
+		os.chdir("..")
+	return os.getcwd()
 
-def findFrames(location):
-	print '1'
+HOME = moveToHome()
+
+
+
+def findFrames(slideLocation, videoLocation):
+	'''print '1'
 	#f = open('slideLocation.txt', 'r')
 	#slideLocation = f.read()
 	#f.close()
@@ -438,26 +462,32 @@ def findFrames(location):
 	slideLocation = f.read()
 	f.close()
 	videoLocation = location
-	print '4'
+	print '4'''
 
-	get_keyframes(videoLocation)
+	moveToHome()
+
+	timestamps = get_keyframes(videoLocation)
 	print len(timestamps)
 	
-	os.chdir("..")
-	os.chdir("..")
+	#os.chdir("..")
+	#os.chdir("..")
 	#extractSlides(slideLocation)
-	os.makedirs(slideFolder)
-	shutil.move(slideLocation, os.path.join(slideFolder, slideLocation))
-	os.chdir(slideFolder)
-	p = subprocess.Popen("convert {0} a.jpg".format(slideLocation), shell = True)
-	p.wait()
-	os.chdir('..')
-	shutil.move(os.path.join(slideFolder, slideLocation), slideLocation)
-	
-	frames = findStarts(slideFolder, frameFolder)
+	if (os.path.exists(SLIDE_FOLDER) == False):
+		os.makedirs(SLIDE_FOLDER)
+	moveToHome()
+	print os.getcwd()
 
+	shutil.move(SLIDE_LOCATION, SLIDE_FOLDER)#os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]))
+	os.chdir(SLIDE_FOLDER)
+	p = subprocess.Popen("convert {0} a.jpg".format(slideLocation.split('/')[-1]), shell = True)
+	p.wait()
+	moveToHome()
+	shutil.move(os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]), SLIDE_LOCATION)
+	
+	frames = findStarts(SLIDE_FOLDER, FRAME_FOLDER)
+	print frames, timestamps
 	times = list(timestamps[i] for i in frames)
-	generateJSON( times)
+	generateJSON(times)
 	slideLocations = "\\slides"
 	with open('data.json', 'r') as data:
 		x= data.read()
@@ -465,8 +495,8 @@ def findFrames(location):
 		return x
 #	return json.dumps({"timeStamps" : timeStamps, "slideLocations" : slideLocations})
 
-#print findFrames("160106-cs103-540.mp4", "cs103-lec1.pdf")
 
+print findFrames(SLIDE_LOCATION, VIDEO_LOCATION)
 
 
 

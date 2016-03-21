@@ -5,9 +5,12 @@ from subprocess import call
 
 app = Flask(__name__, static_url_path='')
 
+VIDEO_LOCATION = 'lib/downloads/video.mp4'
+SLIDE_LOCATION = 'lib/downloads/slide.pdf'
+
 def download_files(video_link, slide_link):
-	call(['curl', '-o', 'lib/downloads/video.mp4', video_link])
-	call(['curl', '-o', 'lib/downloads/slide.pdf', slide_link])
+	call(['curl', '-o', VIDEO_LOCATION, video_link])
+	call(['curl', '-o', SLIDE_LOCATION, slide_link])
 
 @app.route('/', methods=['GET'])
 def load_homepage():
