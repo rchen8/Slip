@@ -33,10 +33,10 @@ def load_homepage():
 def get_links():
 	video_link = request.form['video']
 	slide_link = request.form['slide']
-	if video_link.endswith('.mp4') and slide_link.endswith('.pdf'):
-		download_files(video_link, slide_link)
-		return getTimeStamps(SLIDE_LOCATION, VIDEO_LOCATION, SLIDE_LOCATION, FRAME_FOLDER)
-	return redirect('/')
+	#if video_link.endswith('.mp4') and slide_link.endswith('.pdf'):
+		#download_files(video_link, slide_link)
+	return getTimeStamps(SLIDE_LOCATION, VIDEO_LOCATION, SLIDE_FOLDER, FRAME_FOLDER)
+	#return redirect('/')
 
 if __name__ == "__main__":
 	app.run()

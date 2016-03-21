@@ -480,24 +480,45 @@ def findFrames(slideLocation, videoLocation, slideFolder, frameFolder):
 	#os.chdir("..")
 	#os.chdir("..")
 	#extractSlides(slideLocation)
-	moveToHome()
-	if (os.path.exists(slideFolder) == False):
-		os.makedirs(slideFolder)
-	moveToHome()
-	print os.getcwd()
+	try:
+		print 'a'
+		moveToHome()
+		print'b'
+		try:
+			os.mkdir(slideFolder)
+		except OSError as exc:
+			if exc.errno != errno.EEXIST:
+				print exc
+				raise exc
+			pass
+		moveToHome()
+		print 'c'
+		print os.getcwd()
 
-	shutil.move(slideLocation, slideFolder)#os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]))
-	os.chdir(slideFolder)
-	p = subprocess.Popen("convert {0} a.jpg".format(slideLocation.split('/')[-1]), shell = True)
-	p.wait()
-	moveToHome()
-	shutil.move(os.path.join(slideFolder, os.path.split(slideLocation)[-1]), slideLocation)
-	
-	frames = findStarts(slideFolder, frameFolder)
-	print frames, timestamps
-	times = list(timestamps[i] for i in frames)
-	generateJSON(times, slideFolder)
-	slideLocations = "\\slides"
+		print 'd'
+		shutil.move(slideLocation, slideFolder)#os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]))
+		print 'e2'
+		print slideFolder
+		print(os.path.exists(slideFolder))
+		os.chdir(slideFolder)
+		print 'f'
+		p = subprocess.Popen("convert {0} a.jpg".format(slideLocation.split('/')[-1]), shell = True)
+		p.wait()
+		print 'g'
+		moveToHome()
+		shutil.move(os.path.join(slideFolder, os.path.split(slideLocation)[-1]), slideLocation)
+		print 'h'
+
+		frames = findStarts(slideFolder, frameFolder)
+		print frames, timestamps
+		times = list(timestamps[i] for i in frames)
+		generateJSON(times, slideFolder)
+		slideLocations = "\\slides"
+	except Exception as inst:
+		print inst
+		print type(inst)
+		print inst.args
+
 	with open('data.json', 'r') as data:
 		x= data.read()
 		#print x
