@@ -16,7 +16,8 @@ from PIL import ImageEnhance
 import pytesseract
 import sys
 import math
-
+import pipes
+import errno
 
 THRESHOLD = 0.6
 SCALE = 0.25
@@ -353,7 +354,7 @@ def findFileNumber(fileName):
 
 #timestamps = []
 frameFolder = FRAME_FOLDER
-def get_keyframes(videoLocation):
+def get_keyframes(videoLocation, frameFolder):
 	timestamps = []
 	#os.chdir("Uploads")
 	#for root, dirs, files in os.walk(os.path.join(os.getcwd())):
@@ -364,16 +365,22 @@ def get_keyframes(videoLocation):
 	moveToHome()
 	#file = videoLocation
 	filename = videoLocation.split('/')[-1]
-	newdir = FRAME_FOLDER#+ '-frames'
+	newdir = frameFolder#+ '-frames'
 	#global frameFolder
 	#frameFolder = newdir
 	print newdir
-	if (os.path.exists(FRAME_FOLDER) == False):
-		os.mkdir(FRAME_FOLDER)
-	os.chdir(FRAME_FOLDER)
+	if (os.path.exists(frameFolder) == False):
+		try:
+			os.mkdir(frameFolder)
+		except OSError as exc:
+			if exc.errno != errno.EEXIST:
+				raise exc
+			pass
+	os.chdir(frameFolder)
 	with open('output-' + filename + '.txt', 'w') as out:
-		cmd = "ffmpeg -i " + os.path.join(HOME,videoLocation )+ " -vf select='eq(pict_type\,PICT_TYPE_I)' -vsync passthrough -s 320x180 -f image2 %03d.png -loglevel debug 2>&1 | grep select:1"
-		print os.getcwd(), cmd
+		cmd = "ffmpeg -i " + pipes.quote(os.path.join(HOME,videoLocation))+ " -vf select='eq(pict_type\,PICT_TYPE_I)' -vsync passthrough -s 320x180 -f image2 %03d.png -loglevel debug 2>&1 | grep select:1"
+		print os.getcwd()
+		print cmd
 		p = subprocess.Popen(cmd, shell=True, stdout=out)
 		p.wait()
 		out.flush()
@@ -407,7 +414,7 @@ def get_keyframes(videoLocation):
 	print timestamps
 	return timestamps
 
-def generateJSON(times):
+def generateJSON(times, slideFolder):
 	timestamp_counter = 0 # dummy variable
 	i = 0
 	frames = []
@@ -442,7 +449,7 @@ HOME = moveToHome()
 
 
 
-def findFrames(slideLocation, videoLocation):
+def findFrames(slideLocation, videoLocation, slideFolder, frameFolder):
 	'''print '1'
 	#f = open('slideLocation.txt', 'r')
 	#slideLocation = f.read()
@@ -466,28 +473,30 @@ def findFrames(slideLocation, videoLocation):
 
 	moveToHome()
 
-	timestamps = get_keyframes(videoLocation)
+
+	timestamps = get_keyframes(videoLocation, frameFolder)
 	print len(timestamps)
 	
 	#os.chdir("..")
 	#os.chdir("..")
 	#extractSlides(slideLocation)
-	if (os.path.exists(SLIDE_FOLDER) == False):
-		os.makedirs(SLIDE_FOLDER)
+	moveToHome()
+	if (os.path.exists(slideFolder) == False):
+		os.makedirs(slideFolder)
 	moveToHome()
 	print os.getcwd()
 
-	shutil.move(SLIDE_LOCATION, SLIDE_FOLDER)#os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]))
-	os.chdir(SLIDE_FOLDER)
+	shutil.move(slideLocation, slideFolder)#os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]))
+	os.chdir(slideFolder)
 	p = subprocess.Popen("convert {0} a.jpg".format(slideLocation.split('/')[-1]), shell = True)
 	p.wait()
 	moveToHome()
-	shutil.move(os.path.join(SLIDE_FOLDER, os.path.split(SLIDE_LOCATION)[-1]), SLIDE_LOCATION)
+	shutil.move(os.path.join(slideFolder, os.path.split(slideLocation)[-1]), slideLocation)
 	
-	frames = findStarts(SLIDE_FOLDER, FRAME_FOLDER)
+	frames = findStarts(slideFolder, frameFolder)
 	print frames, timestamps
 	times = list(timestamps[i] for i in frames)
-	generateJSON(times)
+	generateJSON(times, slideFolder)
 	slideLocations = "\\slides"
 	with open('data.json', 'r') as data:
 		x= data.read()
@@ -496,7 +505,8 @@ def findFrames(slideLocation, videoLocation):
 #	return json.dumps({"timeStamps" : timeStamps, "slideLocations" : slideLocations})
 
 
-print findFrames(SLIDE_LOCATION, VIDEO_LOCATION)
+
+#print findFrames(SLIDE_LOCATION, VIDEO_LOCATION, SLIDE_FOLDER, FRAME_FOLDER)
 
 
 
