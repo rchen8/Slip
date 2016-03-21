@@ -5,7 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-	<center>
+<!-- 	<center>
 		<div id="frame">
 			<img src="slides/a-0.jpg" height="540" />
 		</div>
@@ -19,12 +19,15 @@
 				</tr>
 			</table>
 		</div>
-	</center>
+	</center> -->
 
-	<form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
+	<form action="/link" method="post">
+		Link to video:<br>
+		<input type="text" name="video"><br>
+		Link to slide:<br>
+		<input type="text" name="slide"><br>
+		<input type="submit" value="Submit">
+	</form>
 
 	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/templates.js"></script>
