@@ -5,6 +5,7 @@ try:
 except ImportError:
     from PIL import Image
 import pytesseract
+import math
 
 OCR_IMAGE_SIZE = 512
 FRAME_IMAGE_SIZE = 200

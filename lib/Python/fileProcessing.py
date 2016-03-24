@@ -1,9 +1,34 @@
 import os
+import os.path
 import pipes
 import errno
 import subprocess
+import shutil
+import sys
 
 HOMENAME = "Slip"
+
+def allFilesOfType(folder, fileExt):
+	"""returns a list of all filenames ending with fileExt in folder
+	The list is sorted by the number contained in the filename
+	"""
+	allFiles = os.listdir(folder)
+	allFiles = filter(lambda x: x[0] != '.', allFiles) #remove hidden files
+	allFiles = filter(lambda x: os.path.splitext(x)[1] == fileExt)
+	allFiles.sort(key = findFileNumber)
+	return allFiles
+
+def findFileNumber(filename):
+	"""returns the number contained right before the '.' in a filename"""
+	first, second = fileName.split('.')
+	s = ''
+	for i in reversed(range(len(first))):
+		if not first[i].isdigit():
+			break
+		else:
+			s = first[i] + s
+	return int(s)
+
 
 def moveToHome(homename = HOMENAME):
 	"""Moves up until reaching the home directory and returns a full path to home"""
@@ -54,4 +79,25 @@ def extractKeyFrames(videoLocation, frameFolder):
 
 	return timestamps
 
+def splitSlides(slideLocation, slideFolder):
+	"""Splits a PDF at slideLocation to .jpg images in slideFolder
+
+	NOTE: slideFolder should not contain any slides
+	"""
+	moveToHome()
+	try: #try to make slide folder if it needs to be made
+		os.mkdir(slideFolder)
+	except OSError as exc:
+		if exc.errno != errno.EEXIST:
+			raise exc
+		pass
+
+	shutil.move(slideLocation, slideFolder)
+	os.chdir(slideFolder)
+	p = subprocess.Popen("convert {0} slide.jpg".format(slideLocation.split('/')[-1]), shell = True)
+	p.wait()
+
+	#move slide back
+	moveToHome()
+	shutil.move(os.path.join(slideFolder, os.path.split(slideLocation)[-1]), slideLocation)
 
