@@ -2,7 +2,7 @@ import os
 from flask import *
 from werkzeug import secure_filename
 from subprocess import call
-import lib.Python.master as master
+import lib.Python.backend as backend
 
 app = Flask(__name__, static_url_path='')
 
@@ -19,7 +19,7 @@ returns JSON string with an array of JSON objects. Each object has:
 locations should be relative to the Slip folder, as this method automatically moves to that folder
 '''
 def getTimeStamps(slideLocation, videoLocation, slideFolder, frameFolder):
-	return master.findFrames(slideLocation, videoLocation, slideFolder, frameFolder)
+	return backend.findFrames(slideLocation, videoLocation, slideFolder, frameFolder)
 
 def download_files(video_link, slide_link):
 	call(['curl', '-o', VIDEO_LOCATION, video_link])

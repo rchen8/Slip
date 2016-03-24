@@ -14,13 +14,13 @@ def allFilesOfType(folder, fileExt):
 	"""
 	allFiles = os.listdir(folder)
 	allFiles = filter(lambda x: x[0] != '.', allFiles) #remove hidden files
-	allFiles = filter(lambda x: os.path.splitext(x)[1] == fileExt)
+	allFiles = filter(lambda x: os.path.splitext(x)[1] == fileExt, allFiles)
 	allFiles.sort(key = findFileNumber)
 	return allFiles
 
 def findFileNumber(filename):
 	"""returns the number contained right before the '.' in a filename"""
-	first, second = fileName.split('.')
+	first, second = filename.split('.')
 	s = ''
 	for i in reversed(range(len(first))):
 		if not first[i].isdigit():
@@ -32,7 +32,7 @@ def findFileNumber(filename):
 
 def moveToHome(homename = HOMENAME):
 	"""Moves up until reaching the home directory and returns a full path to home"""
-	while os.path.split(os.getcwd())[-1] != homename
+	while os.path.split(os.getcwd())[-1] != homename:
 		os.chdir("..")
 	return os.getcwd()
 
