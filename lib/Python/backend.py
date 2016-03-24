@@ -39,18 +39,19 @@ def findFrames(slideLocation, videoLocation, slideFolder, frameFolder):
 		slideNames = fileProcessing.allFilesOfType(slideFolder, '.jpg')
 		framePositions = slideMatch.match(slideNames, frameNames)
 
+		#print framePositions
 		times = list(timestamps[i] for i in framePositions) #now get timestamp for each frame
 
 		frames = [] #making the JSON to return
-		for i, filename in enumerate(frameNames):
+		#print times
+		for i, filename in enumerate(slideNames):
 			frameObj = {}
-			frameObj['image'] = filename
+			frameObj['image'] = filename.split('/')[-1] #filename without path
 			frameObj['timestamp'] = times[i]
+			#print frameObj
 			frames.append(frameObj)
 
 		return json.dumps(frames)
-
-
 
 
 	except Exception as inst:

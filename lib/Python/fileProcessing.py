@@ -16,7 +16,7 @@ def allFilesOfType(folder, fileExt):
 	allFiles = filter(lambda x: x[0] != '.', allFiles) #remove hidden files
 	allFiles = filter(lambda x: os.path.splitext(x)[1] == fileExt, allFiles)
 	allFiles.sort(key = findFileNumber)
-	return allFiles
+	return list(map(lambda x: os.path.join(folder, x), allFiles)) #add folder to name
 
 def findFileNumber(filename):
 	"""returns the number contained right before the '.' in a filename"""
