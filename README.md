@@ -1,7 +1,11 @@
 # Slip
 
-`cd` into root directory  
-`python server.py`  
-open `localhost:5000` in your browser  
-provide a valid link for the video (.mp4) and slides (.pdf)  
-the files should be downloaded to `lib/downloads` folder
+### Installation
+
+Make sure to use a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/)  
+`pip install -r requirements.txt`  
+Install [OpenCV](http://www.pyimagesearch.com/2015/06/15/install-opencv-3-0-and-python-2-7-on-osx/)
+
+### To Run
+
+`python run.py`
