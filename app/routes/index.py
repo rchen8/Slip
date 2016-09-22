@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 
 UPLOAD_FOLDER = 'files/before'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['pdf', 'mp4'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
