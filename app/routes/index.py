@@ -3,7 +3,8 @@ from app import app
 from werkzeug.utils import secure_filename
 import os
 
-app.config['BEFORE_FOLDER'] = 'files/before'
+app.config['BEFORE_FOLDER'] = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))), 'files/before')
 app.config['AFTER_FOLDER'] = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))), 'files/after')
 
@@ -36,7 +37,7 @@ def get_slide():
 
 @app.route('/video', methods=['GET'])
 def get_video():
-  return send_from_directory(app.config['BEFORE_FOLDER'] + '/video', 'video.mp4') # TODO: filename constant
+  return send_from_directory(app.config['BEFORE_FOLDER'] + '/video', 'video.mp4') # TODO - dynamically create filename
 
 @app.route('/player', methods=['GET'])
 def player():

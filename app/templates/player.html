@@ -2,19 +2,23 @@
 <html>
 <head>
   <title>Slip</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
   <center>
-    <div id="frame">
+    <div class="frame">
       <img src="{{ url_for('get_slide', filename='slide-0.jpg') }}" height="540">
     </div>
 
-    <div id="button">
+    <div class="button">
       <table width="60%">
         <tr>
-          <td width="48%"><img class="button" id="back_button" src="images/back_button.png" height="30"></td>
-          <td width="52%"><img class="button" id="video_button" src="images/video_button.png" height="30"></td>
-          <td><img class="button" id="next_button" src="images/next_button.png" height="30"></td>
+          <td class="left"><img class="back_button" src="images/back_button.png" height="30"></td>
+          <td class="center">
+            <img class="video_button" src="images/video_button.png" height="30">
+            <img class="slide_button" src="images/slide_button.png" height="30">
+          </td>
+          <td class="right"><img class="next_button" src="images/next_button.png" height="30"></td>
         </tr>
       </table>
     </div>
