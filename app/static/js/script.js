@@ -19,20 +19,20 @@ $(".slide_button").click(changeSlide);
 $(".video_button").click(changeVideo); 
 
 function changeVideo() {
-  var video = tag("video", {controls: "", height: 540}, [
-    tag("source", {src: "video", type: "video/mp4"}, ""),
+  var video = tag("video", {controls: "", autoplay: "", preload: "auto", height: 540}, [
+    tag("source", {src: "video#t=10", type: "video/mp4"}, ""),
     "Your browser does not support the video tag."
   ]);
+
+  video.currentTime = 5;
+  // video.addEventListener("loadeddata", function(event) {
+  //   event.preventDefault();
+  //   video.currentTime = 5;
+  // });
+
   var $div = $(".frame");
   $div.html("");
   $div.append(video);
-
-  $("video").on("loadedmetadata", function(event) {
-    event.preventDefault();
-    this.currentTime = 1000;
-    console.log(this.currentTime)
-    this.play();
-  });
 }
 
 function changeSlide() {
