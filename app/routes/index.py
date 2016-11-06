@@ -25,6 +25,8 @@ def save_file(file_part):
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['BEFORE_FOLDER'] + '/' + file_part, filename))
 
+# Endpoints
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
   save_file('video')
@@ -37,7 +39,10 @@ def get_slide():
 
 @app.route('/video', methods=['GET'])
 def get_video():
-  return send_from_directory(app.config['BEFORE_FOLDER'] + '/video', 'video.mp4') # TODO - dynamically create filename
+  # TODO - dynamically create filename
+  return send_from_directory(app.config['BEFORE_FOLDER'] + '/video', 'video.mp4')
+
+# Templates
 
 @app.route('/player', methods=['GET'])
 def player():

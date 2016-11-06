@@ -20,19 +20,19 @@ $(".video_button").click(changeVideo);
 
 function changeVideo() {
   var video = tag("video", {controls: "", autoplay: "", preload: "auto", height: 540}, [
-    tag("source", {src: "video#t=10", type: "video/mp4"}, ""),
+    tag("source", {src: "video", type: "video/mp4"}, ""),
     "Your browser does not support the video tag."
   ]);
-
-  video.currentTime = 5;
-  // video.addEventListener("loadeddata", function(event) {
-  //   event.preventDefault();
-  //   video.currentTime = 5;
-  // });
 
   var $div = $(".frame");
   $div.html("");
   $div.append(video);
+
+  video.load();
+  video.addEventListener("loadedmeta", function() {
+    video.currentTime = 50;
+    video.play();
+  });
 }
 
 function changeSlide() {
