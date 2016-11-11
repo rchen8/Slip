@@ -28,11 +28,9 @@ function changeVideo() {
   $div.html("");
   $div.append(video);
 
-  video.load();
-  video.addEventListener("loadedmeta", function() {
-    video.currentTime = 50;
-    video.play();
-  });
+  video.addEventListener('loadedmetadata', function() {
+    this.currentTime = 500;
+  }, false);
 }
 
 function changeSlide() {
