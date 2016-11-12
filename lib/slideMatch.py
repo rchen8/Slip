@@ -244,8 +244,8 @@ def openFiles(fileNames, targetSize, debug = None):
   text = []
 
   count = 0
+  sift = cv2.xfeatures2d.SIFT_create()
   for name in fileNames:
-    sift = cv2.xfeatures2d.SIFT_create() #TODO: Can this be moved out of the loop for efficiency??
     img = cv2.imread(name)
     img = resize(img, targetSize)
     features.append(sift.detectAndCompute(img, None)[1])

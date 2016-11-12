@@ -49,7 +49,7 @@ function previousSlide() {
 }
 
 function nextSlide() {
-  if (currentSlide < numSlides) {
+  if (currentSlide < numSlides - 1) {
     currentSlide++;
     changeSlide();
   }
