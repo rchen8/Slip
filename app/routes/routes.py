@@ -30,12 +30,12 @@ def save_file(file_part):
 def send_from_directory_wrapper(directory, filename):
   filename = safe_join(directory, filename)
   if not os.path.isabs(filename):
-      filename = os.path.join(current_app.root_path, filename)
+    filename = os.path.join(current_app.root_path, filename)
   try:
-      if not os.path.isfile(filename):
-          raise NotFound()
+    if not os.path.isfile(filename):
+      raise NotFound()
   except (TypeError, ValueError):
-      raise BadRequest()
+    raise BadRequest()
   return send_file_partial(filename)
 
 def send_file_partial(path):
@@ -54,12 +54,12 @@ def send_file_partial(path):
 
   length = size - byte1
   if byte2 is not None:
-      length = byte2 - byte1
+    length = byte2 - byte1
 
   data = None
   with open(path, 'rb') as f:
-      f.seek(byte1)
-      data = f.read(length)
+    f.seek(byte1)
+    data = f.read(length)
 
   rv = Response(data, 206, mimetype=mimetypes.guess_type(path)[0], direct_passthrough=True)
   rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(byte1, byte1 + length - 1, size))
@@ -80,12 +80,16 @@ def upload_file():
 
 @app.route('/slide', methods=['GET'])
 def get_slide():
-  return send_from_directory(app.config['AFTER_FOLDER'] + '/slides', request.args.get('filename'))
+  return send_from_directory(app.config['AFTER_FOLDER'] + '/slides', 'slide-' +
+      request.args.get('slidenumber') + '.jpg')
 
 @app.route('/video', methods=['GET'])
 def get_video():
-  # TODO - dynamically create filename
   return send_from_directory_wrapper(app.config['BEFORE_FOLDER'] + '/video', 'video.mp4')
+
+@app.route('/timestamps', methods=['GET'])
+def get_timestamps():
+  return send_from_directory(app.config['AFTER_FOLDER'], 'data.json')
 
 # Templates
 

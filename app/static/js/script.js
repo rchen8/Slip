@@ -1,5 +1,6 @@
-var NUM_SLIDES = 42;
+var numSlides = 0;
 var currentSlide = 0;
+var timestamps = [];
 
 var LEFT_ARROW_KEY = 37;
 var RIGHT_ARROW_KEY = 39;
@@ -29,12 +30,12 @@ function changeVideo() {
   $div.append(video);
 
   video.addEventListener('loadedmetadata', function() {
-    this.currentTime = 500;
+    this.currentTime = timestamps[currentSlide];
   }, false);
 }
 
 function changeSlide() {
-  var slide = tag("img", {src: "slide?filename=slide-" + currentSlide + ".jpg", height: 540}, "");
+  var slide = tag("img", {src: "slide?slidenumber=" + currentSlide, height: 540}, "");
   var $div = $(".frame");
   $div.html("");
   $div.append(slide);
@@ -48,8 +49,17 @@ function previousSlide() {
 }
 
 function nextSlide() {
-  if (currentSlide < NUM_SLIDES) {
+  if (currentSlide < numSlides) {
     currentSlide++;
     changeSlide();
   }
 }
+
+(function() {
+  $.get("timestamps", function(data) {
+    for (var slideNumber in data) {
+      timestamps.push(data[slideNumber].timestamp);
+    }
+    numSlides = timestamps.length;
+  });
+})();
