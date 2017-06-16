@@ -1,52 +1,42 @@
+import file_processing
 import json
-import slideMatch
-import fileProcessing
+import slide_match
 
-DEBUG = True
-
-def findFrames(slideLocation, videoLocation, slideFolder, frameFolder):
+def find_frames(slide_location, video_location, slide_folder, frame_folder):
   """Processes everything and returns a json
 
-  IMPORTANT: slideFolder and frameFolder should initially be empty
+  IMPORTANT: slide_folder and frame_folder should initially be empty
 
   Args:
-    slideLocation - location of slides relative to home (pdf)
-    videoLocation - location of the video relative to home (mp4)
-    slideFolder - A folder to put the slides in
-    frameFolder - A folder to put the frames in
+    slide_location - location of slides relative to home (pdf)
+    video_location - location of the video relative to home (mp4)
+    slide_folder - A folder to put the slides in
+    frame_folder - A folder to put the frames in
 
   Returns: 
     JSON array where each element represents one frame containing:
-      image -> filename inside frameFolder
+      image -> filename inside frame_folder
       timestampe -> time in the video for that frame
   """
+  print 'Splitting video'
+  timestamps = file_processing.extract_key_frames(video_location, frame_folder)
+  print 'Done splitting video'
 
-  if DEBUG:
-    print 'Splitting video'
-  timestamps = fileProcessing.extractKeyFrames(videoLocation, frameFolder)
-  if DEBUG:
-    print 'Done splitting video'
-    print 'Splitting slides'
+  print 'Splitting slides'
+  file_processing.split_slides(slide_location, slide_folder)
+  print "Done splitting slides"
 
-  fileProcessing.splitSlides(slideLocation, slideFolder)
+  frame_names = file_processing.all_files_of_type(frame_folder, '.png')
+  slide_names = file_processing.all_files_of_type(slide_folder, '.jpg')
+  frame_positions = slide_match.match(slide_names, frame_names)
 
-  if DEBUG:
-    print "Done splitting slides"
+  times = list(timestamps[i] for i in frame_positions) # now get timestamp for each frame
 
-  frameNames = fileProcessing.allFilesOfType(frameFolder, '.png')
-  slideNames = fileProcessing.allFilesOfType(slideFolder, '.jpg')
-  framePositions = slideMatch.match(slideNames, frameNames)
-
-  #print framePositions
-  times = list(timestamps[i] for i in framePositions) #now get timestamp for each frame
-
-  frames = [] #making the JSON to return
-  #print times
-  for i, filename in enumerate(slideNames):
-    frameObj = {}
-    frameObj['image'] = filename.split('/')[-1] #filename without path
-    frameObj['timestamp'] = times[i]
-    #print frameObj
-    frames.append(frameObj)
+  frames = [] # making the JSON to return
+  for i, filename in enumerate(slide_names):
+    frame_object = {}
+    frame_object['image'] = filename.split('/')[-1] # filename without path
+    frame_object['timestamp'] = times[i]
+    frames.append(frame_object)
 
   return json.dumps(frames)

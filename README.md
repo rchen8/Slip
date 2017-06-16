@@ -12,5 +12,10 @@ Install [RabbitMQ](http://docs.celeryproject.org/en/latest/getting-started/broke
 
 ### To Run
 
+```
+sudo rabbitmq-server
+celery -A lib.slide_match worker --loglevel=info
+```
+
 `python run.py` to start web server  
 `python test.py` to temporarily test algorithm
